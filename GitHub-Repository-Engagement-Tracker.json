@@ -1,0 +1,401 @@
+{
+  "name": "GitHub-Repository-Engagement-Tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "value": "YOUR_GITHUB_USERNAME",
+          "mode": "list",
+          "cachedResultName": "YOUR_GITHUB_USERNAME",
+          "cachedResultUrl": "https://github.com/YOUR_GITHUB_USERNAME"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "YOUR_REPO_NAME",
+          "mode": "list",
+          "cachedResultName": "YOUR_REPO_NAME",
+          "cachedResultUrl": "https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME"
+        },
+        "events": [
+          "pull_request",
+          "star"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.githubTrigger",
+      "typeVersion": 1,
+      "position": [
+        48,
+        -80
+      ],
+      "id": "c14a6aae-b986-45a2-962c-8f3aa07d4f0f",
+      "name": "Github Trigger",
+      "webhookId": "00000000-0000-0000-0000-000000000000",
+      "credentials": {
+        "githubApi": {
+          "id": "GITHUB_CREDENTIAL_ID",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "91e1413a-9c50-47ef-a38e-19a1f9f9b717",
+                    "leftValue": "={{ $json.headers['x-github-event'] }}-{{ $json.body.action }}",
+                    "rightValue": "star-created",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0d0010f5-cb50-4f43-bdd9-c3a8230d3274",
+                    "leftValue": "={{ $json.headers['x-github-event'] }}-{{ $json.body.action }}",
+                    "rightValue": "pull_request-opened",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        -80
+      ],
+      "id": "3855c408-dc73-477a-9925-675ac4b871bd",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appXXXXXXXXXXXXXX",
+          "mode": "list",
+          "cachedResultName": "Engagements",
+          "cachedResultUrl": "https://airtable.com/appXXXXXXXXXXXXXX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblXXXXXXXXXXXXXX",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appXXXXXXXXXXXXXX/tblXXXXXXXXXXXXXX"
+        },
+        "filterByFormula": "={Engagement ID} = '{{ $json.body.sender.id }}-star'",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        -96
+      ],
+      "id": "c7f4f198-9a86-477b-ae9f-2a8525e8b299",
+      "name": "Search records",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "AIRTABLE_CREDENTIAL_ID",
+          "name": "Airtable Personal Access Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "232ec84b-edf7-49c2-88b8-5979de9ed9bf",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        640,
+        -96
+      ],
+      "id": "14a7569f-7964-4b2a-ab49-391b40f94158",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appXXXXXXXXXXXXXX",
+          "mode": "list",
+          "cachedResultName": "Engagements",
+          "cachedResultUrl": "https://airtable.com/appXXXXXXXXXXXXXX"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblXXXXXXXXXXXXXX",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appXXXXXXXXXXXXXX/tblXXXXXXXXXXXXXX"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Engagement ID": "={{ $('Switch').item.json.body.sender.id }}-star",
+            "Username": "={{ $('Switch').item.json.body.sender.login }}",
+            "Event Type": "={{ $('Switch').item.json.headers['x-github-event'] }}",
+            "Repo Name": "={{ $('Switch').item.json.body.repository.name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Engagement ID",
+              "displayName": "Engagement ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Username",
+              "displayName": "Username",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Event Type",
+              "displayName": "Event Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Repo Name",
+              "displayName": "Repo Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        832,
+        -112
+      ],
+      "id": "2b2a0785-ec88-4fd1-b5ac-e7e6b54f8ed8",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "AIRTABLE_CREDENTIAL_ID",
+          "name": "Airtable Personal Access Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "123456789",
+        "text": "=🚀 New Engagement Alert!  \n👤 User: {{ $json.fields.Username }} \n🔥 Action: {{ $json.fields['Event Type'] }} 📂 Repo: {{ $json.fields['Repo Name'] }}  \n✅ Logged securely to database.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        -48
+      ],
+      "id": "cf9ea0bb-ebe2-4274-a9a1-a8b72acc5322",
+      "name": "Send a text message",
+      "webhookId": "00000000-0000-0000-0000-000000000000",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "fromEmail": "your_email@gmail.com",
+        "toEmail": "your_email@gmail.com",
+        "subject": "=🚀 New Engagement: {{ $('Create a record').item.json.fields.Username }}",
+        "html": "=<p>Hello,</p>\n<p>A new engagement has been tracked!</p>\n<ul>\n    <li><strong>User:</strong> {{ $('Create a record').item.json.fields.Username }}</li>\n    <li><strong>Event:</strong> {{ $('Create a record').item.json.fields['Event Type'] }}</li>\n    <li><strong>Repo:</strong> {{ $('Create a record').item.json.fields['Repo Name'] }}</li>\n</ul>\n<p>The record has been verified and stored in the database.</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1024,
+        -208
+      ],
+      "id": "48903805-0ec1-480b-b4b9-d68dc1026b38",
+      "name": "Send an Email",
+      "webhookId": "00000000-0000-0000-0000-000000000000",
+      "retryOnFail": true,
+      "credentials": {
+        "smtp": {
+          "id": "SMTP_CREDENTIAL_ID",
+          "name": "SMTP account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Github Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "602ad95e-bfff-42e2-95cb-cf94ca7ea326",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "id": "KeQT8b__sHzaMaytjZ-s-",
+  "tags": []
+}
